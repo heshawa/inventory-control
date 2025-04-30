@@ -32,6 +32,13 @@ Make sure you have:
      ./gradlew bootRun
     ```
 
+### 📖 API Guide
+
+- **GET** `/hello`  
+  Returns a simple "Hello, World!" message.
+
+- **GET** `/hello/{name}`  
+  Returns a personalized greeting message with the provided `name`.
 Clone the repository:
 
 ```bash
