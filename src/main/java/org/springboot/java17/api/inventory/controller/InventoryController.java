@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/inventory")
 @ResponseBody//Returns json object
@@ -18,7 +21,12 @@ public class InventoryController {
 	private InventoryService inventoryService;
 	@PostMapping("/add")
 	public ItemDTO addItem(ItemDTO itemDTO) {
-		ItemDTO item = inventoryService.addItem(null);		
+		ItemDTO item = null;
+		if(itemDTO == null || itemDTO.getName() == null) {
+			log.warn("Item name is null");
+			return inventoryService.addItem(null);
+		}
+		item = inventoryService.addItem(itemDTO);		
 		return item;
 	}
 }

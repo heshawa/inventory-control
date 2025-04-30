@@ -16,6 +16,7 @@ Make sure you have:
 
 - Java 17+
 - Gradle installed (`./gradlew` wrapper is also included)
+- Add Lombok plugin to your IDE to avoid Lombok IDE error indications
 
 
 ### 🔧 Running the App

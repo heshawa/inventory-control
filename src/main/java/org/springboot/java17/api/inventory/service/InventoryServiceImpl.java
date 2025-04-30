@@ -6,6 +6,9 @@ import org.springboot.java17.api.inventory.dto.ItemDTO;
 import org.springboot.java17.api.inventory.model.Item;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service//Helps to auto-wire as a bean
 public class InventoryServiceImpl implements InventoryService {
 
@@ -13,7 +16,8 @@ public class InventoryServiceImpl implements InventoryService {
 	public ItemDTO addItem(ItemDTO item) {
 		// Logic to add creatingItem to inventory
 		Item creatingItem = null;
-		if(creatingItem == null) {
+		if(item == null) {
+			log.warn("Item is null");
 			creatingItem = new Item();
 			creatingItem.setName("Sample Item");
 			creatingItem.setDescription("This is a sample item.");
@@ -27,6 +31,7 @@ public class InventoryServiceImpl implements InventoryService {
 			createdItem.setPrice(String.valueOf(creatingItem.getPrice()));
 			createdItem.setQuantity(String.valueOf(creatingItem.getQuantity()));
 		}catch (Exception e) {
+			log.error("Error while creating item", e);
 			return null;
 		}
 		
