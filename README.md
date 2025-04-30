@@ -34,11 +34,33 @@ Make sure you have:
 
 ### 📖 API Guide
 
+#### hello API
 - **GET** `/hello`  
   Returns a simple "Hello, World!" message.
 
 - **GET** `/hello/{name}`  
   Returns a personalized greeting message with the provided `name`.
+
+#### inventory API
+- **POST** `/inventory/add` - HTTP Response Code: **200**
+  Creates and adding a new inventory item. Returns the created item details.
+  ```javascript
+  Request Body
+  {}
+  ```
+  ```javascript
+  HTTP/1.1 200
+  Content-Type: application/json
+  {
+    "name": "Sample Item",
+    "description": "This is a sample item.",
+    "price": "19.99",
+    "quantity": "10"
+  }
+  ```
+
+
+
 Clone the repository:
 
 ```bash
