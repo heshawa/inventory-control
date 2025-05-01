@@ -79,7 +79,7 @@ Following instructions are based on values in `application.properties` file
 - Visit `http://localhost:8080/h2-console` to view data inserted to DB
 - Configuration values are as follow
   - Driver Class: `org.h2.Driver`
-  - JDBC URL: `jdbc:h2:mem:inventoryDB`
+  - JDBC URL: `jdbc:h2:file:./data/inventoryDB`
   - Username: `adminInventory`
   - Password: 
 - Press test connectivity button to check if connection is successful
