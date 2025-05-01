@@ -73,6 +73,44 @@ Make sure you have:
     ```javascript
     HTTP/1.1 204
     ```
+- **GET** `/inventory/get/{itemName}` - HTTP Response Code: **200**
+  Search an inventory items by its name. Returns the item details.
+  - Request sample 1 - success
+    ```javascript
+    Request
+    http://localhost:8080/inventory/hammer
+    ```
+    ```javascript
+    Response - HTTP/1.1 200
+    Content-Type: application/json
+    [
+      {
+          "name": "Sledge Hammer",
+          "description": "3cm head, Wooden handle and 1Kg weight",
+          "price": "35.25",
+          "quantity": "15"
+      },
+      {
+          "name": "Nail Hammer",
+          "description": "2cm head, Wooden handle and 750g weight",
+          "price": "27.00",
+          "quantity": "15"
+      }
+    ]
+    ```
+  - Request sample 2 - no results
+    ```javascript
+    Request
+    http://localhost:8080/inventory/aaa
+    ```
+    ```javascript
+    Response - HTTP/1.1 200
+    Content-Type: application/json
+    {
+      "message": "No items with the given name",
+      "description": ""
+    }
+    ```
 
 ### 📖 DB Guide
 Following instructions are based on values in `application.properties` file

@@ -1,12 +1,16 @@
 package org.springboot.java17.api.inventory.service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springboot.java17.api.inventory.dto.ItemDTO;
 import org.springboot.java17.api.inventory.model.InventoryRepository;
 import org.springboot.java17.api.inventory.model.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,5 +48,26 @@ public class InventoryServiceImpl implements InventoryService {
 		return createdItem;
 	}
 
-	// Additional methods for inventory management can be added here
+	@Override
+	public List<ItemDTO> getItemsByName(String itemName) throws Exception{
+		if(StringUtils.isEmpty(itemName)){
+			log.warn("Search item name is not provided");
+			return null;
+		}
+		
+		List<Item> items = inventoryRepository.findByNameContainingIgnoreCase(itemName);
+		
+		if(!CollectionUtils.isEmpty(items)){
+			return items.stream().map(item ->{
+				ItemDTO itemDto = new ItemDTO();
+				itemDto.setName(item.getName());
+				itemDto.setDescription(item.getDescription());
+				itemDto.setPrice(String.valueOf(item.getPrice()));
+				itemDto.setQuantity(String.valueOf(item.getQuantity()));
+				return itemDto;
+			}).collect(Collectors.toList());
+		}
+
+		return null;
+	}
 }
