@@ -3,7 +3,9 @@ package org.springboot.java17.api.inventory.service;
 import java.math.BigDecimal;
 
 import org.springboot.java17.api.inventory.dto.ItemDTO;
+import org.springboot.java17.api.inventory.model.InventoryRepository;
 import org.springboot.java17.api.inventory.model.Item;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service//Helps to auto-wire as a bean
 public class InventoryServiceImpl implements InventoryService {
 
+	@Autowired
+	private InventoryRepository inventoryRepository;
 	@Override
 	public ItemDTO addItem(ItemDTO item) {
 		// Logic to add creatingItem to inventory
@@ -27,6 +31,7 @@ public class InventoryServiceImpl implements InventoryService {
 		}
 		ItemDTO createdItem = new ItemDTO();
 		try{
+			inventoryRepository.save(creatingItem);
 			createdItem.setName(creatingItem.getName());
 			createdItem.setDescription(creatingItem.getDescription());
 			createdItem.setPrice(String.valueOf(creatingItem.getPrice()));

@@ -74,7 +74,17 @@ Make sure you have:
     HTTP/1.1 204
     ```
 
-
+### 📖 DB Guide
+Following instructions are based on values in `application.properties` file
+- Visit `http://localhost:8080/h2-console` to view data inserted to DB
+- Configuration values are as follow
+  - Driver Class: `org.h2.Driver`
+  - JDBC URL: `jdbc:h2:mem:inventoryDB`
+  - Username: `adminInventory`
+  - Password: 
+- Press test connectivity button to check if connection is successful
+- Press connect button to view data in DB
+- Write SQL queries in the SQL command box and press run button to execute the query
 
 Clone the repository:
 
