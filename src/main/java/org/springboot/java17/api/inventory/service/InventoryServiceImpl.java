@@ -18,11 +18,12 @@ public class InventoryServiceImpl implements InventoryService {
 		Item creatingItem = null;
 		if(item == null) {
 			log.warn("Item is null");
+		} else {
 			creatingItem = new Item();
-			creatingItem.setName("Sample Item");
-			creatingItem.setDescription("This is a sample item.");
-			creatingItem.setPrice(new BigDecimal("19.99"));
-			creatingItem.setQuantity(Integer.parseInt("10"));
+			creatingItem.setName(item.getName());
+			creatingItem.setDescription(item.getDescription());
+			creatingItem.setPrice(new BigDecimal(item.getPrice()));
+			creatingItem.setQuantity(Integer.parseInt(item.getQuantity()));
 		}
 		ItemDTO createdItem = new ItemDTO();
 		try{

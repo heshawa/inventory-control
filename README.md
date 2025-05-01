@@ -45,20 +45,34 @@ Make sure you have:
 #### inventory API
 - **POST** `/inventory/add` - HTTP Response Code: **200**
   Creates and adding a new inventory item. Returns the created item details.
-  ```javascript
-  Request Body
-  {}
-  ```
-  ```javascript
-  HTTP/1.1 200
-  Content-Type: application/json
-  {
-    "name": "Sample Item",
-    "description": "This is a sample item.",
-    "price": "19.99",
-    "quantity": "10"
-  }
-  ```
+  - Request sample 1 - success
+    ```javascript
+    Request Body
+    {
+      "name":"Screw driver",
+      "description": "3mm flower head",
+      "price": 15.50,
+      "quantity":25
+    }
+    ```
+    ```javascript
+    Response - HTTP/1.1 200
+    Content-Type: application/json
+    {
+      "name": "Sample Item",
+      "description": "This is a sample item.",
+      "price": "19.99",
+      "quantity": "10"
+    }
+    ```
+  - Request sample 2 - no content
+    ```javascript
+    Request Body
+    {}
+    ```
+    ```javascript
+    HTTP/1.1 204
+    ```
 
 
 
