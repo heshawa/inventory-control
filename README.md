@@ -124,6 +124,23 @@ Following instructions are based on values in `application.properties` file
 - Press connect button to view data in DB
 - Write SQL queries in the SQL command box and press run button to execute the query
 
+### 🧪 Running Unit Tests
+
+Unit tests are written using JUnit 5 and Mockito. To execute the tests, run the following command:
+
+```bash
+./gradlew test
+```
+To run in debug mode
+```bash
+./gradlew test --debug-jvm
+```
+
+To view the test report
+```javascript
+http://localhost:63342/inventoryControl/build/reports/tests/test/index.html
+```
+
 Clone the repository:
 
 ```bash
