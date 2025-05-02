@@ -41,11 +41,6 @@ public class InventoryController {
 	
 	@GetMapping("/{itemName}")
 	public ResponseEntity getItems(@PathVariable String itemName){
-		if(StringUtils.isEmpty(itemName)){
-			log.warn("Item name is not available");
-			return ResponseEntity.noContent().build();
-		}
-
 		try {
 			List<ItemDTO> items = inventoryService.getItemsByName(itemName);
 			log.debug("Items found for the given value. value: {}", itemName);
