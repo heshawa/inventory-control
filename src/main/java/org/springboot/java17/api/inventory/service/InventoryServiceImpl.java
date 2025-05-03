@@ -27,25 +27,17 @@ public class InventoryServiceImpl implements InventoryService {
 		if(item == null) {
 			log.warn("Item is null");
 		} else {
-			creatingItem = new Item();
-			creatingItem.setName(item.getName());
-			creatingItem.setDescription(item.getDescription());
-			creatingItem.setPrice(new BigDecimal(item.getPrice()));
-			creatingItem.setQuantity(Integer.parseInt(item.getQuantity()));
+			creatingItem = convertToItem(item);
 		}
-		ItemDTO createdItem = new ItemDTO();
+
 		try{
-			inventoryRepository.save(creatingItem);
-			createdItem.setName(creatingItem.getName());
-			createdItem.setDescription(creatingItem.getDescription());
-			createdItem.setPrice(String.valueOf(creatingItem.getPrice()));
-			createdItem.setQuantity(String.valueOf(creatingItem.getQuantity()));
+			creatingItem = inventoryRepository.save(creatingItem);
 		}catch (Exception e) {
 			log.error("Error while creating item", e);
 			return null;
 		}
 		
-		return createdItem;
+		return convertToItemDTO(creatingItem);
 	}
 
 	@Override
@@ -58,16 +50,37 @@ public class InventoryServiceImpl implements InventoryService {
 		List<Item> items = inventoryRepository.findByNameContainingIgnoreCase(itemName);
 		
 		if(!CollectionUtils.isEmpty(items)){
-			return items.stream().map(item ->{
-				ItemDTO itemDto = new ItemDTO();
-				itemDto.setName(item.getName());
-				itemDto.setDescription(item.getDescription());
-				itemDto.setPrice(String.valueOf(item.getPrice()));
-				itemDto.setQuantity(String.valueOf(item.getQuantity()));
-				return itemDto;
-			}).collect(Collectors.toList());
+			return items.stream().map(item ->convertToItemDTO(item)).collect(Collectors.toList());
 		}
 
 		return null;
+	}
+	
+	private ItemDTO convertToItemDTO(Item item){
+		if(item == null){
+			log.warn("Item is null");
+			return null;
+		}
+		ItemDTO itemDTO = new ItemDTO();
+		itemDTO.setName(item.getName());
+		itemDTO.setDescription(item.getDescription());
+		itemDTO.setPrice(String.valueOf(item.getPrice()));
+		itemDTO.setQuantity(String.valueOf(item.getQuantity()));
+		
+		return itemDTO;
+	}
+	
+	private Item convertToItem(ItemDTO itemDTO){
+		if(itemDTO == null){
+			log.warn("ItemDTO is null");
+			return null;
+		}
+		Item item = new Item();
+		item.setName(itemDTO.getName());
+		item.setDescription(itemDTO.getDescription());
+		item.setPrice(new BigDecimal(itemDTO.getPrice()));
+		item.setQuantity(Integer.parseInt(itemDTO.getQuantity()));
+
+		return item;
 	}
 }

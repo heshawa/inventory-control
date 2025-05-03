@@ -38,6 +38,20 @@ public class InventoryServiceTest {
 		addItem.setPrice(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE);
 		addItem.setQuantity(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY);
 
+		Item createdItem = new Item();
+		createdItem.setId(1);
+		createdItem.setName(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME);
+		createdItem.setDescription(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION);
+		createdItem.setPrice(new BigDecimal(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE));
+		createdItem.setQuantity(Integer.parseInt(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY));
+
+
+		when(repository.save(argThat(item -> TestConstantValues.ITEM_SLEDGE_HAMMER_NAME.equals(item.getName()) &&
+				TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION.equals(item.getDescription()) &&
+				TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY.equals(String.valueOf(item.getQuantity())) &&
+				TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE.equals(String.valueOf(item.getPrice())))))
+				.thenReturn(createdItem);
+
 		ItemDTO returnedValue = service.addItem(addItem);
 
 		assertNotNull(returnedValue);
