@@ -53,4 +53,14 @@ public class InventoryController {
 			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching items",e.getMessage()));
 		}
 	}
+	
+	@GetMapping("")
+	public ResponseEntity getAllItems(){
+		try {
+			return ResponseEntity.ok(inventoryService.getAllItems());
+		} catch (Exception e) {
+			log.error("Error while fetching all items", e);
+			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching all items", e.getMessage()));
+		}
+	}
 }

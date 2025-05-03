@@ -55,6 +55,12 @@ public class InventoryServiceImpl implements InventoryService {
 
 		return null;
 	}
+
+	@Override
+	public List<ItemDTO> getAllItems() throws Exception {
+		List<Item> items = inventoryRepository.findAll();
+		return items.stream().map(item -> convertToItemDTO(item)).collect(Collectors.toList());
+	}
 	
 	private ItemDTO convertToItemDTO(Item item){
 		if(item == null){

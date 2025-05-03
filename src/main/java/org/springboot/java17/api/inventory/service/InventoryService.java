@@ -8,4 +8,6 @@ public interface InventoryService {
 	ItemDTO addItem(ItemDTO item);
 	
 	List<ItemDTO> getItemsByName(String itemName) throws Exception;
+	
+	List<ItemDTO> getAllItems() throws Exception;
 }
