@@ -1,6 +1,8 @@
 package org.springboot.java17.api.inventory.dto;
 
 public class ItemDTO {
+	
+	private int id;
 	private String name;
 	private String description;
 	private String price;
@@ -36,5 +38,13 @@ public class ItemDTO {
 
 	public void setQuantity(String quantity) {
 		this.quantity = quantity;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }

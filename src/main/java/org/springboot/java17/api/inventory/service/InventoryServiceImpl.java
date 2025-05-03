@@ -66,6 +66,7 @@ public class InventoryServiceImpl implements InventoryService {
 		itemDTO.setDescription(item.getDescription());
 		itemDTO.setPrice(String.valueOf(item.getPrice()));
 		itemDTO.setQuantity(String.valueOf(item.getQuantity()));
+		itemDTO.setId(item.getId());
 		
 		return itemDTO;
 	}
@@ -80,6 +81,7 @@ public class InventoryServiceImpl implements InventoryService {
 		item.setDescription(itemDTO.getDescription());
 		item.setPrice(new BigDecimal(itemDTO.getPrice()));
 		item.setQuantity(Integer.parseInt(itemDTO.getQuantity()));
+		item.setId(itemDTO.getId());
 
 		return item;
 	}
