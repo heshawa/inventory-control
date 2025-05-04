@@ -62,10 +62,11 @@ public class InventoryControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(responseDTO)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.name").value(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME))
-				.andExpect(jsonPath("$.price").value(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE))
-				.andExpect(jsonPath("$.quantity").value(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY))
-				.andExpect(jsonPath("$.description").value(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION));
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.data[0].name").value(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME))
+				.andExpect(jsonPath("$.data[0].price").value(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE))
+				.andExpect(jsonPath("$.data[0].quantity").value(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY))
+				.andExpect(jsonPath("$.data[0].description").value(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION));
 	}
 	
 	@Test
@@ -100,14 +101,15 @@ public class InventoryControllerTest {
 		
 		mockMvc.perform(get("/inventory/"+searchTerm))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].name").value(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME))
-				.andExpect(jsonPath("$[0].price").value(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE))
-				.andExpect(jsonPath("$[0].quantity").value(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY))
-				.andExpect(jsonPath("$[0].description").value(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION))
-				.andExpect(jsonPath("$[1].name").value(TestConstantValues.ITEM_NAIL_HAMMER_NAME))
-				.andExpect(jsonPath("$[1].price").value(TestConstantValues.ITEM_NAIL_HAMMER_PRICE))
-				.andExpect(jsonPath("$[1].quantity").value(TestConstantValues.ITEM_NAIL_HAMMER_QUANTITY))
-				.andExpect(jsonPath("$[1].description").value(TestConstantValues.ITEM_NAIL_HAMMER_DESCRIPTION));
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.data[0].name").value(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME))
+				.andExpect(jsonPath("$.data[0].price").value(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE))
+				.andExpect(jsonPath("$.data[0].quantity").value(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY))
+				.andExpect(jsonPath("$.data[0].description").value(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION))
+				.andExpect(jsonPath("$.data[1].name").value(TestConstantValues.ITEM_NAIL_HAMMER_NAME))
+				.andExpect(jsonPath("$.data[1].price").value(TestConstantValues.ITEM_NAIL_HAMMER_PRICE))
+				.andExpect(jsonPath("$.data[1].quantity").value(TestConstantValues.ITEM_NAIL_HAMMER_QUANTITY))
+				.andExpect(jsonPath("$.data[1].description").value(TestConstantValues.ITEM_NAIL_HAMMER_DESCRIPTION));
 	}
 	
 	@Test
@@ -119,6 +121,7 @@ public class InventoryControllerTest {
 		
 		mockMvc.perform(get("/inventory/"+searchTerm))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.message").value("No items with the given name"));
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message").value("No items with the given name."));
 	}
 }

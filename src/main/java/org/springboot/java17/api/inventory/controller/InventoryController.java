@@ -37,7 +37,9 @@ public class InventoryController {
 			return ResponseEntity.noContent().build();
 		}
 		item = inventoryService.addItem(itemDTO);
-		return ResponseEntity.ok(item);
+		ResponseMessage message = new ResponseMessage("");
+		message.getData().add(item);
+		return ResponseEntity.ok(message);
 	}
 	
 	@GetMapping("/{itemName}")
@@ -47,21 +49,32 @@ public class InventoryController {
 			log.debug("Items found for the given value. value: {}", itemName);
 			if(CollectionUtils.isEmpty(items)){
 				log.warn("No items found for the given value. value: {}", itemName);
-				return ResponseEntity.ok(new ResponseMessage("No items with the given name",""));
+				return ResponseEntity.ok(new ResponseMessage("No items with the given name."));
 			}
-			return ResponseEntity.ok(items);
+			ResponseMessage message = new ResponseMessage("");
+			message.setData(items);
+			return ResponseEntity.ok(message);
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching items",e.getMessage()));
+			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching items. " + e.getMessage()));
 		}
 	}
 	
 	@GetMapping("")
 	public ResponseEntity getAllItems(){
 		try {
-			return ResponseEntity.ok(inventoryService.getAllItems());
+			ResponseMessage message = null;
+			List<ItemDTO> allItems = inventoryService.getAllItems();
+			
+			if(CollectionUtils.isEmpty(allItems)){
+				message = new ResponseMessage("No items available.");
+			}else {
+				message = new ResponseMessage("");
+				message.setData(allItems);
+			}
+			return ResponseEntity.ok(message);
 		} catch (Exception e) {
 			log.error("Error while fetching all items", e);
-			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching all items", e.getMessage()));
+			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching all items. " + e.getMessage()));
 		}
 	}
 	
@@ -69,14 +82,14 @@ public class InventoryController {
 	public ResponseEntity getItemsForItemIds(@RequestBody List<Integer> itemIds){
 		if(CollectionUtils.isEmpty(itemIds)){
 			log.warn("Item ids are empty");
-			return ResponseEntity.badRequest().body(new ResponseMessage("Item ids are empty",""));
+			return ResponseEntity.badRequest().body(new ResponseMessage("Item ids are empty."));
 		}
 		List<ItemDTO> items = null;
 		try {
 			items = inventoryService.getItemsByIds(itemIds);
 			if(CollectionUtils.isEmpty(items)){
 				log.warn("No items found for the given ids");
-				return ResponseEntity.ok(new ResponseMessage("No items found for the given ids",""));
+				return ResponseEntity.ok(new ResponseMessage("No items found for the given ids."));
 			}
 		} catch (Exception e) {
 			log.warn("Error while fetching items for the given ids. Ids: {}", Arrays.toString(itemIds.toArray()));
