@@ -1,6 +1,8 @@
 package org.springboot.java17.api.inventory.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +73,36 @@ public class InventoryServiceImpl implements InventoryService {
 		
 		List<Item> items = inventoryRepository.findAllById(itemIds);
 		return items.stream().map(item->convertToItemDTO(item)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<ItemDTO> allocateInventory(List<ItemDTO> items) throws Exception{
+		if(CollectionUtils.isEmpty(items)){
+			log.warn("No items were sent for allocation");
+			return Collections.emptyList();
+		}
+
+		List<Integer> itemsToFetch = items.stream().map(ItemDTO::getId).collect(Collectors.toList());
+		List<Item> itemsToAllocate = inventoryRepository.findAllById(itemsToFetch);
+		
+		itemsToAllocate.stream().forEach(itemToAllocate ->{
+				ItemDTO orderLineItem = items.stream().filter(item -> itemToAllocate.getId()==item.getId()).findFirst().orElse(null);
+				
+				if(itemToAllocate.getQuantity()<Integer.parseInt(orderLineItem.getQuantity())){
+					orderLineItem.setQuantity("-1");
+					log.warn("Not enough stocks for allocation. Item ID: {}, Item Name: {}, Item Count: {}, Order Count: {}",
+							itemToAllocate.getId(), itemToAllocate.getName(), itemToAllocate.getQuantity(), orderLineItem.getQuantity());
+				}else{
+					itemToAllocate.setQuantity(itemToAllocate.getQuantity()-Integer.parseInt(orderLineItem.getQuantity()));
+				}
+				orderLineItem.setName(itemToAllocate.getName());
+				orderLineItem.setDescription(itemToAllocate.getDescription());
+				orderLineItem.setPrice(String.valueOf(itemToAllocate.getPrice()));
+		});
+		
+		inventoryRepository.saveAll(itemsToAllocate);
+		log.info("Order items allocation is successful. Item Ids: {}", Arrays.toString(itemsToFetch.toArray()));
+		return items;
 	}
 
 	private ItemDTO convertToItemDTO(Item item){

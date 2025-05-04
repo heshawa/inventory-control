@@ -96,4 +96,33 @@ public class InventoryController {
 		}
 		return ResponseEntity.ok(items);
 	}
+	
+	@PostMapping("/allocate")
+	public ResponseEntity allocateInventory(@RequestBody List<ItemDTO> items){
+		if(CollectionUtils.isEmpty(items)){
+			log.warn("No items were sent for allocations");
+			return ResponseEntity.badRequest().body(new ResponseMessage("No items were sent for allocations."));
+		}
+
+		List<ItemDTO> allocatedItems = null;
+		try {
+			allocatedItems = inventoryService.allocateInventory(items);
+			
+			boolean isOrderPassed = allocatedItems.stream().filter(item->Integer.parseInt(item.getQuantity())>0).findFirst().isPresent();
+
+			if(CollectionUtils.isEmpty(allocatedItems) || !isOrderPassed){
+				log.warn("No items were allocated");
+				ResponseMessage message = new ResponseMessage("No items were allocated.");
+				message.setSuccess(false);
+				return ResponseEntity.ok(message);
+			}
+		} catch (Exception e) {
+			log.error("Unexpected error while allocating the order.",e);
+			ResponseMessage message = new ResponseMessage("Unexpected Error while fulFilling the order. " + e.getMessage());
+			message.setSuccess(false);
+			return ResponseEntity.internalServerError().body(message);
+		}
+
+		return ResponseEntity.ok(allocatedItems);
+	}
 }

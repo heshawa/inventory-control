@@ -12,4 +12,6 @@ public interface InventoryService {
 	List<ItemDTO> getAllItems() throws Exception;
 
 	List<ItemDTO> getItemsByIds(List<Integer> itemIds) throws Exception;
+
+	List<ItemDTO> allocateInventory(List<ItemDTO> items) throws Exception;
 }
