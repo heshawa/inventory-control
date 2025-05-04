@@ -61,7 +61,18 @@ public class InventoryServiceImpl implements InventoryService {
 		List<Item> items = inventoryRepository.findAll();
 		return items.stream().map(item -> convertToItemDTO(item)).collect(Collectors.toList());
 	}
-	
+
+	@Override
+	public List<ItemDTO> getItemsByIds(List<Integer> itemIds) throws Exception{
+		if(CollectionUtils.isEmpty(itemIds)){
+			log.warn("Item ids are not provided");
+			return null;
+		}
+		
+		List<Item> items = inventoryRepository.findAllById(itemIds);
+		return items.stream().map(item->convertToItemDTO(item)).collect(Collectors.toList());
+	}
+
 	private ItemDTO convertToItemDTO(Item item){
 		if(item == null){
 			log.warn("Item is null");

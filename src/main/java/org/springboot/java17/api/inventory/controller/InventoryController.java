@@ -1,5 +1,6 @@
 package org.springboot.java17.api.inventory.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springboot.java17.api.ResponseMessage;
@@ -62,5 +63,24 @@ public class InventoryController {
 			log.error("Error while fetching all items", e);
 			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching all items", e.getMessage()));
 		}
+	}
+	
+	@PostMapping("/items")
+	public ResponseEntity getItemsForItemIds(@RequestBody List<Integer> itemIds){
+		if(CollectionUtils.isEmpty(itemIds)){
+			log.warn("Item ids are empty");
+			return ResponseEntity.badRequest().body(new ResponseMessage("Item ids are empty",""));
+		}
+		List<ItemDTO> items = null;
+		try {
+			items = inventoryService.getItemsByIds(itemIds);
+			if(CollectionUtils.isEmpty(items)){
+				log.warn("No items found for the given ids");
+				return ResponseEntity.ok(new ResponseMessage("No items found for the given ids",""));
+			}
+		} catch (Exception e) {
+			log.warn("Error while fetching items for the given ids. Ids: {}", Arrays.toString(itemIds.toArray()));
+		}
+		return ResponseEntity.ok(items);
 	}
 }
