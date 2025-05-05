@@ -1,6 +1,7 @@
 package org.springboot.java17.api.inventory.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -85,22 +86,40 @@ public class InventoryServiceImpl implements InventoryService {
 		List<Integer> itemsToFetch = items.stream().map(ItemDTO::getId).collect(Collectors.toList());
 		List<Item> itemsToAllocate = inventoryRepository.findAllById(itemsToFetch);
 		
-		itemsToAllocate.stream().forEach(itemToAllocate ->{
-				ItemDTO orderLineItem = items.stream().filter(item -> itemToAllocate.getId()==item.getId()).findFirst().orElse(null);
-				
-				if(itemToAllocate.getQuantity()<Integer.parseInt(orderLineItem.getQuantity())){
-					orderLineItem.setQuantity("-1");
-					log.warn("Not enough stocks for allocation. Item ID: {}, Item Name: {}, Item Count: {}, Order Count: {}",
-							itemToAllocate.getId(), itemToAllocate.getName(), itemToAllocate.getQuantity(), orderLineItem.getQuantity());
-				}else{
-					itemToAllocate.setQuantity(itemToAllocate.getQuantity()-Integer.parseInt(orderLineItem.getQuantity()));
-				}
-				orderLineItem.setName(itemToAllocate.getName());
-				orderLineItem.setDescription(itemToAllocate.getDescription());
-				orderLineItem.setPrice(String.valueOf(itemToAllocate.getPrice()));
+		List<Integer> notFoundOrders = new ArrayList();
+
+		items.stream().forEach(orderLineItem -> {
+			Item itemToAllocate = itemsToAllocate.stream().filter(item -> orderLineItem.getId()==item.getId()).findFirst().orElse(null);
+
+			if(itemToAllocate == null){
+				notFoundOrders.add(orderLineItem.getId());
+				log.warn("Invalid item ID. ItemId: {}",orderLineItem.getId());
+				orderLineItem.setPrice("0");
+				orderLineItem.setName("");
+				orderLineItem.setDescription("");
+				orderLineItem.setId(-1);
+				return;
+			}
+
+			if(itemToAllocate.getQuantity()<Integer.parseInt(orderLineItem.getQuantity())){
+				orderLineItem.setQuantity("-1");
+				log.warn("Not enough stocks for allocation. Item ID: {}, Item Name: {}, Item Count: {}, Order Count: {}",
+						itemToAllocate.getId(), itemToAllocate.getName(), itemToAllocate.getQuantity(), orderLineItem.getQuantity());
+			}else{
+				itemToAllocate.setQuantity(itemToAllocate.getQuantity()-Integer.parseInt(orderLineItem.getQuantity()));
+			}
+			orderLineItem.setName(itemToAllocate.getName());
+			orderLineItem.setDescription(itemToAllocate.getDescription());
+			orderLineItem.setPrice(String.valueOf(itemToAllocate.getPrice()));
 		});
-		
+
+		if(!CollectionUtils.isEmpty(notFoundOrders)){
+			log.warn("Entire order was not able to reserve. Invalid orders: {}",Arrays.toString(notFoundOrders.toArray()));
+		}
+
 		inventoryRepository.saveAll(itemsToAllocate);
+		itemsToFetch.removeAll(notFoundOrders);
+		
 		log.info("Order items allocation is successful. Item Ids: {}", Arrays.toString(itemsToFetch.toArray()));
 		return items;
 	}

@@ -123,6 +123,8 @@ public class InventoryController {
 			return ResponseEntity.internalServerError().body(message);
 		}
 
-		return ResponseEntity.ok(allocatedItems);
+		ResponseMessage<ItemDTO> message = new ResponseMessage<>("");
+		message.setData(allocatedItems);
+		return ResponseEntity.ok(message);
 	}
 }
