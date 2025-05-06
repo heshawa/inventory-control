@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springboot.java17.api.ResponseMessage;
-import org.springboot.java17.api.inventory.dto.ItemDTO;
+import org.springboot.java17.api.common.dto.ItemDTO;
 import org.springboot.java17.api.inventory.model.Item;
 import org.springboot.java17.api.inventory.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;

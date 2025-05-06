@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springboot.java17.api.inventory.dto.ItemDTO;
+import org.springboot.java17.api.common.dto.ItemDTO;
 import org.springboot.java17.api.inventory.model.InventoryRepository;
 import org.springboot.java17.api.inventory.model.Item;
 import org.springframework.beans.factory.annotation.Autowired;

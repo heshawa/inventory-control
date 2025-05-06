@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springboot.java17.api.inventory.TestConstantValues;
-import org.springboot.java17.api.inventory.dto.ItemDTO;
+import org.springboot.java17.api.common.dto.ItemDTO;
 import org.springboot.java17.api.inventory.model.InventoryRepository;
 import org.springboot.java17.api.inventory.model.Item;
 
