@@ -1,0 +1,3 @@
+[submodule "common-dto"]
+	path = common-dto
+	url = git@github.com:heshawa/common-dto.git
