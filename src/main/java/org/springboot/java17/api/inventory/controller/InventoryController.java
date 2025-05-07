@@ -76,7 +76,9 @@ public class InventoryController {
 			return ResponseEntity.ok(message);
 		} catch (Exception e) {
 			log.error("Error while fetching all items", e);
-			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching all items. " + e.getMessage()));
+			ResponseMessage message = new ResponseMessage("Error while fetching all items");
+			message.setSuccess(false);
+			return ResponseEntity.internalServerError().body(message);
 		}
 	}
 	

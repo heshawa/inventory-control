@@ -18,8 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
@@ -192,7 +192,49 @@ public class InventoryControllerTest {
 				).andExpect(status().isInternalServerError())
 				.andExpect(jsonPath("$.success").value(false))
 				.andExpect(jsonPath("$.message",not(emptyOrNullString())));
-	}	
+	}
+
+
+	@Test
+	public void shouldReturnAllTheItems_whenInventoryApiInvocation() throws Exception {
+		ItemDTO sledgeHammer = getSledgeHammer();
+		ItemDTO nailHammer = getNailHammer();
+		ItemDTO screwDriver = getScrewDriver();
+
+		when(service.getAllItems()).thenReturn(List.of(sledgeHammer,nailHammer,screwDriver));
+
+		mockMvc.perform(get("/inventory"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message").value(""))
+				.andExpect(jsonPath("$.data[0].name",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data[1].name",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data[1].name",not(emptyOrNullString())));
+	}
+
+	@Test
+	public void shouldNotReturnAnyItem_whenInventoryIsEmptyOnInventoryApiInvocation() throws Exception{
+		when(service.getAllItems()).thenReturn(Collections.emptyList());
+
+		mockMvc.perform(get("/inventory"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data",hasSize(0)));
+
+	}
+
+	@Test
+	public void shouldReturnInternalServerErrorAndSuccessFalse_whenServiceIsNullOnInventoryApiInvocation() throws Exception{
+		when(service.getAllItems()).thenThrow(NullPointerException.class);
+
+		mockMvc.perform(get("/inventory"))
+				.andExpect(status().isInternalServerError())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data",hasSize(0)));
+
+	}
 	private ItemDTO getSledgeHammer(){
 		ItemDTO sledgeHammer = new ItemDTO();
 		sledgeHammer.setName(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME);
