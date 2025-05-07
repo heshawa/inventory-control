@@ -11,4 +11,9 @@ public interface TestConstantValues {
 	String ITEM_NAIL_HAMMER_PRICE = "27.00";
 	String ITEM_NAIL_HAMMER_QUANTITY = "18";
 
+	String ITEM_SCREW_DRIVE_NAME = "Screw Driver";
+	String ITEM_SCREW_DRIVE_DESCRIPTION = "3mm flat head screw driver with rubber handle";
+	String ITEM_SCREW_DRIVE_PRICE = "19.99";
+	String ITEM_SCREW_DRIVE_QUANTITY = "50";
+
 }

@@ -1,5 +1,6 @@
 package org.springboot.java17.api.inventory.controller;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.hamcrest.Matchers.emptyOrNullString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
@@ -38,14 +41,9 @@ public class InventoryControllerTest {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Test
-	public void shouldAddItem_whenValidItemIsPassedToService() throws Exception {
+	public void shouldAddItem_whenValidItemIsPassedOnItemsAddApiInvocation() throws Exception {
 
-		ItemDTO responseDTO = new ItemDTO();
-		responseDTO.setName(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME);
-		responseDTO.setDescription(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION);
-		responseDTO.setPrice(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE);
-		responseDTO.setQuantity(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY);
-
+		ItemDTO responseDTO = getSledgeHammer();
 
 //		when(service.addItem(itemDTO)).thenReturn(responseDTO);
 		
@@ -70,7 +68,7 @@ public class InventoryControllerTest {
 	}
 	
 	@Test
-	public void shouldReturnNoContent_whenInvalidItemIsPassedToService() throws Exception {
+	public void shouldReturnNoContent_whenInvalidItemIsPassedOnItemsAddApiInvocation() throws Exception {
 		ItemDTO itemDTO = new ItemDTO();
 		
 		mockMvc.perform(post("/inventory/add")
@@ -80,22 +78,12 @@ public class InventoryControllerTest {
 	}
 	
 	@Test
-	public void shouldReturnResultResponse_whenThereAreItemsMatchingForSearchTerm() throws Exception {
+	public void shouldReturnResultResponse_whenThereAreItemsMatchingForSearchTermOnSearchApiInvocation() throws Exception {
 		
 		final String searchTerm = "hammer";
 
-		ItemDTO sledgeHammer = new ItemDTO();
-		sledgeHammer.setName(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME);
-		sledgeHammer.setDescription(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION);
-		sledgeHammer.setPrice(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE);
-		sledgeHammer.setQuantity(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY);
-
-		ItemDTO nailHammer = new ItemDTO();
-		nailHammer.setName(TestConstantValues.ITEM_NAIL_HAMMER_NAME);
-		nailHammer.setDescription(TestConstantValues.ITEM_NAIL_HAMMER_DESCRIPTION);
-		nailHammer.setPrice(TestConstantValues.ITEM_NAIL_HAMMER_PRICE);
-		nailHammer.setQuantity(TestConstantValues.ITEM_NAIL_HAMMER_QUANTITY);
-
+		ItemDTO sledgeHammer = getSledgeHammer();
+		ItemDTO nailHammer = getNailHammer();
 
 		when(service.getItemsByName(searchTerm)).thenReturn(List.of(sledgeHammer,nailHammer));
 		
@@ -111,17 +99,124 @@ public class InventoryControllerTest {
 				.andExpect(jsonPath("$.data[1].quantity").value(TestConstantValues.ITEM_NAIL_HAMMER_QUANTITY))
 				.andExpect(jsonPath("$.data[1].description").value(TestConstantValues.ITEM_NAIL_HAMMER_DESCRIPTION));
 	}
-	
+
 	@Test
-	public void shouldReturnNoContent_whenThereAreNoItemsMatchingForSearchTerm() throws Exception {
+	public void shouldReturnNoContent_whenThereAreNoItemsMatchingForSearchTermOnSearchApiInvocation() throws Exception {
 
 		final String searchTerm = "aaa";
-		
+
 		when(service.getItemsByName(searchTerm)).thenReturn(List.of());
-		
+
 		mockMvc.perform(get("/inventory/"+searchTerm))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.success").value(true))
 				.andExpect(jsonPath("$.message").value("No items with the given name."));
+	}
+
+	@Test
+	public void shouldReturnInternalServerErrorAndSuccessFalse_whenTheServiceIsNullOnSearchApiInvocation() throws Exception {
+
+		final String searchTerm = "aaa";
+
+		when(service.getItemsByName(searchTerm)).thenThrow(NullPointerException.class);
+
+		mockMvc.perform(get("/inventory/"+searchTerm))
+				.andExpect(status().isInternalServerError())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())));
+	}
+
+	@Test
+	public void shouldReturnItemDetailsForGivenIds_whenThereAreValidItemIdsInRequestOnRetrieveItemsByIdInvocation() throws Exception {
+		ItemDTO sledgeHammer = getSledgeHammer();
+		ItemDTO nailHammer = getNailHammer();
+		ItemDTO screwDriver = getScrewDriver();
+		
+		List<Integer> itemIdList = List.of(sledgeHammer.getId(),nailHammer.getId(),screwDriver.getId());
+		when(service.getItemsByIds(argThat(itemIds->itemIds.contains(sledgeHammer.getId()) &&
+				itemIds.contains(nailHammer.getId()) &&
+				itemIds.contains(screwDriver.getId()))))
+				.thenReturn(List.of(sledgeHammer,nailHammer,screwDriver));
+		
+		mockMvc.perform(post("/inventory/items")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemIdList)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message").value(""))
+				.andExpect(jsonPath("$.data[0].name",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data[1].name",not(emptyOrNullString())))
+				.andExpect(jsonPath("$.data[1].name",not(emptyOrNullString())));
+	}
+	
+	@Test
+	public void shouldReturnSuccessFalse_whenNoItemIdsPassedOnRetrieveItemsByIdInvocation() throws Exception{
+		List<Integer> itemIdList = Collections.emptyList();
+		
+		mockMvc.perform(post("/inventory/items")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(itemIdList))
+		).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())));
+	}
+	
+	@Test
+	public void shouldReturnSuccessFalse_whenThereAreInvalidItemIdsInRequestOnRetrieveItemsByIdInvocation() throws Exception {
+		List<Integer> itemIdList = List.of(1,2,3);
+		
+		when(service.getItemsByIds(argThat(itemIds->itemIds.contains(1) &&
+				itemIds.contains(2) &&
+				itemIds.contains(3))))
+				.thenReturn(Collections.emptyList());
+
+		mockMvc.perform(post("/inventory/items")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemIdList))
+				).andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())));
+	}
+	@Test
+	public void shouldReturnInternalServerErrorAndSuccessFalse_whenTheServiceIsNullOnRetrieveItemsByIdInvocation() throws Exception {
+		List<Integer> itemIdList = List.of(1,2,3);
+
+		when(service.getItemsByIds(argThat(itemIds->itemIds.contains(1) &&
+				itemIds.contains(2) &&
+				itemIds.contains(3))))
+				.thenThrow(NullPointerException.class);
+
+		mockMvc.perform(post("/inventory/items")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemIdList))
+				).andExpect(status().isInternalServerError())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message",not(emptyOrNullString())));
+	}	
+	private ItemDTO getSledgeHammer(){
+		ItemDTO sledgeHammer = new ItemDTO();
+		sledgeHammer.setName(TestConstantValues.ITEM_SLEDGE_HAMMER_NAME);
+		sledgeHammer.setDescription(TestConstantValues.ITEM_SLEDGE_HAMMER_DESCRIPTION);
+		sledgeHammer.setPrice(TestConstantValues.ITEM_SLEDGE_HAMMER_PRICE);
+		sledgeHammer.setQuantity(TestConstantValues.ITEM_SLEDGE_HAMMER_QUANTITY);
+		return sledgeHammer;
+	}
+	
+	private ItemDTO getNailHammer(){
+		ItemDTO nailHammer = new ItemDTO();
+		nailHammer.setName(TestConstantValues.ITEM_NAIL_HAMMER_NAME);
+		nailHammer.setDescription(TestConstantValues.ITEM_NAIL_HAMMER_DESCRIPTION);
+		nailHammer.setPrice(TestConstantValues.ITEM_NAIL_HAMMER_PRICE);
+		nailHammer.setQuantity(TestConstantValues.ITEM_NAIL_HAMMER_QUANTITY);
+		return nailHammer;
+	}
+	
+	private ItemDTO getScrewDriver(){
+		ItemDTO screwDriver = new ItemDTO();
+		screwDriver.setName(TestConstantValues.ITEM_SCREW_DRIVE_NAME);
+		screwDriver.setDescription(TestConstantValues.ITEM_SCREW_DRIVE_DESCRIPTION);
+		screwDriver.setQuantity(TestConstantValues.ITEM_SCREW_DRIVE_QUANTITY);
+		screwDriver.setPrice(TestConstantValues.ITEM_SCREW_DRIVE_PRICE);
+		return screwDriver;
 	}
 }

@@ -55,7 +55,9 @@ public class InventoryController {
 			message.setData(items);
 			return ResponseEntity.ok(message);
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body(new ResponseMessage("Error while fetching items. " + e.getMessage()));
+			ResponseMessage message = new ResponseMessage("Error while fetching items. " + e.getMessage());
+			message.setSuccess(false);
+			return ResponseEntity.internalServerError().body(message);
 		}
 	}
 	
@@ -82,7 +84,9 @@ public class InventoryController {
 	public ResponseEntity getItemsForItemIds(@RequestBody List<Integer> itemIds){
 		if(CollectionUtils.isEmpty(itemIds)){
 			log.warn("Item ids are empty");
-			return ResponseEntity.badRequest().body(new ResponseMessage("Item ids are empty."));
+			ResponseMessage message = new ResponseMessage("Item ids are empty");
+			message.setSuccess(false);
+			return ResponseEntity.badRequest().body(message);
 		}
 		List<ItemDTO> items = null;
 		try {
@@ -93,8 +97,14 @@ public class InventoryController {
 			}
 		} catch (Exception e) {
 			log.warn("Error while fetching items for the given ids. Ids: {}", Arrays.toString(itemIds.toArray()));
+			ResponseMessage message = new ResponseMessage("Error while fetching items for the given ids");
+			message.setSuccess(false);
+			return ResponseEntity.internalServerError().body(message);
 		}
-		return ResponseEntity.ok(items);
+		ResponseMessage message = new ResponseMessage("");
+		message.setSuccess(true);
+		message.setData(items);
+		return ResponseEntity.ok(message);
 	}
 	
 	@PostMapping("/allocate")
