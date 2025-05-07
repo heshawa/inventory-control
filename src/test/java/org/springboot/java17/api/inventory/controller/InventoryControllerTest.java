@@ -221,7 +221,107 @@ public class InventoryControllerTest {
 				.andExpect(jsonPath("$.success").value(true))
 				.andExpect(jsonPath("$.message",not(emptyOrNullString())))
 				.andExpect(jsonPath("$.data",hasSize(0)));
+	}
+	
+	@Test
+	public void shouldReturnAllocatedItems_whenItemIdsAndQuantitiesPassedOnAllocateAPIInvocation() throws Exception{
+		int orderLineNumberOfHammers = 2;
+		int orderLineNumberOfScrewDrivers = 3;
 
+		ItemDTO sledgeHammer = getSledgeHammer();
+		sledgeHammer.setQuantity(String.valueOf(orderLineNumberOfHammers));
+		
+		ItemDTO screwDriver = getScrewDriver();
+		screwDriver.setQuantity(String.valueOf(orderLineNumberOfScrewDrivers));
+
+		ItemDTO orderLineSledgeHammer = getSledgeHammer();
+		orderLineSledgeHammer.setName(null);
+		orderLineSledgeHammer.setDescription(null);
+		orderLineSledgeHammer.setPrice(null);
+		orderLineSledgeHammer.setQuantity(String.valueOf(orderLineNumberOfHammers));
+
+		ItemDTO orderLineScrewDriver = getScrewDriver();
+		orderLineScrewDriver.setName(null);
+		orderLineScrewDriver.setDescription(null);
+		orderLineScrewDriver.setPrice(null);
+		orderLineScrewDriver.setQuantity(String.valueOf(orderLineNumberOfScrewDrivers));
+		
+		List<ItemDTO> orderLines = List.of(orderLineScrewDriver,orderLineSledgeHammer);
+
+		when(service.allocateInventory(any())).thenReturn(List.of(sledgeHammer,screwDriver));
+		
+		mockMvc.perform(post("/inventory/allocate")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(orderLines)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(true))
+				.andExpect(jsonPath("$.data",hasSize(orderLines.size())));
+	}
+
+	@Test
+	public void shouldReturnBadRequestAndSuccessFalse_whenNoItemIdsAndQuantitiesPassedOnAllocateAPIInvocation() throws Exception{
+		List<ItemDTO> orderLines = Collections.emptyList();
+
+		mockMvc.perform(post("/inventory/allocate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(orderLines)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.data",hasSize(orderLines.size())));
+
+	}
+
+	@Test
+	public void shouldReturnStatusOkAndSuccessFalse_whenItemIdsAreNotAvailableOnAllocateAPIInvocation() throws Exception{
+		int orderLineNumberOfHammers = 2;
+		int orderLineNumberOfScrewDrivers = 3;
+
+		ItemDTO orderLineSledgeHammer = new ItemDTO();
+		orderLineSledgeHammer.setQuantity(String.valueOf(orderLineNumberOfHammers));
+		orderLineSledgeHammer.setId(4);
+		
+
+		ItemDTO orderLineScrewDriver = new ItemDTO();
+		orderLineScrewDriver.setQuantity(String.valueOf(orderLineNumberOfScrewDrivers));
+		orderLineScrewDriver.setId(5);
+
+		List<ItemDTO> orderLines = List.of(orderLineScrewDriver,orderLineSledgeHammer);
+		
+		when(service.allocateInventory(any())).thenReturn(Collections.emptyList());
+
+		mockMvc.perform(post("/inventory/allocate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(orderLines)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.data",hasSize(0)));
+
+	}
+
+	@Test
+	public void shouldReturnInternalServerErrorAndSuccessFalse_whenInventoryServiceIsNullOnAllocateAPIInvocation() throws Exception{
+		int orderLineNumberOfHammers = 2;
+		int orderLineNumberOfScrewDrivers = 3;
+
+		ItemDTO orderLineSledgeHammer = new ItemDTO();
+		orderLineSledgeHammer.setQuantity(String.valueOf(orderLineNumberOfHammers));
+		orderLineSledgeHammer.setId(1);
+
+
+		ItemDTO orderLineScrewDriver = new ItemDTO();
+		orderLineScrewDriver.setQuantity(String.valueOf(orderLineNumberOfScrewDrivers));
+		orderLineScrewDriver.setId(2);
+
+		List<ItemDTO> orderLines = List.of(orderLineScrewDriver,orderLineSledgeHammer);
+
+		when(service.allocateInventory(any())).thenThrow(NullPointerException.class);
+
+		mockMvc.perform(post("/inventory/allocate")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(orderLines)))
+				.andExpect(status().isInternalServerError())
+				.andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.data",hasSize(0)));
 	}
 
 	@Test

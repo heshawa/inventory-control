@@ -113,18 +113,20 @@ public class InventoryController {
 	public ResponseEntity allocateInventory(@RequestBody List<ItemDTO> items){
 		if(CollectionUtils.isEmpty(items)){
 			log.warn("No items were sent for allocations");
-			return ResponseEntity.badRequest().body(new ResponseMessage("No items were sent for allocations."));
+			ResponseMessage message = new ResponseMessage("No items were sent for allocations");
+			message.setSuccess(false);
+			return ResponseEntity.badRequest().body(message);
 		}
 
 		List<ItemDTO> allocatedItems = null;
 		try {
 			allocatedItems = inventoryService.allocateInventory(items);
-			
+
 			boolean isOrderPassed = allocatedItems.stream().filter(item->Integer.parseInt(item.getQuantity())>0).findFirst().isPresent();
 
 			if(CollectionUtils.isEmpty(allocatedItems) || !isOrderPassed){
 				log.warn("No items were allocated");
-				ResponseMessage message = new ResponseMessage("No items were allocated.");
+				ResponseMessage message = new ResponseMessage("All the items were not allocated.");
 				message.setSuccess(false);
 				return ResponseEntity.ok(message);
 			}
