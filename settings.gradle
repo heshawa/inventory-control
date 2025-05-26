@@ -1,2 +1,4 @@
 rootProject.name = 'inventoryControl'
-includeBuild 'common-dto'
+
+include 'common-dto'
+project(':common-dto').projectDir = file('./common-dto')
